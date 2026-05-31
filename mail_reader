@@ -1,10 +1,12 @@
 import os
 from email_message import EmailMessage
-class MailReader:
+class Reader:
     def read(self, message):
-        if self.imageMessage(message):
-            raise ValueError("Изображение")
         if os.path.isfile(message):
+            if self.imageMessage(message):
+                raise ValueError("Изображение")
+            if os.path.getsize(message) == 0:
+                raise ValueError("В файле ничего нет, он пустой")
             try:
                 openMessage = open(message, "r", encoding="utf-8")
                 messageText = openMessage.read()
