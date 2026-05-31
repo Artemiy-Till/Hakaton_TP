@@ -44,7 +44,7 @@ class MailClassifier:
                 "мониторинга за сутки", "cpu", "memory", "нагрузка",
                 "healthcheck", "автоматическое уведомление", "api gateway"
             ],
-            "info": [
+            "inbox": [
                 "дайджест", "новость", "обновление", "уведомление",
                 "плановая работа", "технические работы", "инструкция",
                 "напоминание", "news", "update", "notification", "digest",
@@ -70,7 +70,6 @@ class MailClassifier:
 
     def classify(self, subject, sender, body):
         full_text = (subject.lower() + " " + sender.lower() + " " + body.lower())
-
         concrete_words = [
             "сервер", "систем", "доступ", "vpn", "confluence", "gitlab", "1с", "облач",
             "принтер", "сканер", "ноутбук", "мышь", "клавиатура", "монитор", "гарнитура",
@@ -79,39 +78,31 @@ class MailClassifier:
             "инцидент", "работа остановлена", "пароль истекает", "заблокирован",
             "диск", "uptime", "мониторинг", "плановый отчёт", "healthcheck", "api gateway"
         ]
-
         for cat, keywords in self.rules.items():
             for kw in keywords:
                 if kw in full_text:
                     if cat == "important":
-
                         if ("дайджест" in full_text or "выпуск" in full_text or
                             "плановые технические работы" in full_text):
                             continue
-
                         if ("автоматическое уведомление" in full_text or
                             "система мониторинга" in full_text or
                             "healthcheck" in full_text):
                             continue
-
                         if "плановый отчёт" in full_text or "мониторинга за сутки" in full_text:
                             continue
-
                         if kw in ["не работает", "не отвечает"]:
                             has_concrete = any(word in full_text for word in concrete_words if word != kw)
                             if not has_concrete:
                                 continue
-
                         if "регистрация" in full_text or "зарегистрироваться" in full_text:
                             continue
-
                         if "отпуск" in full_text or "больничный лист" in full_text:
                             continue
-
                         if kw == "второй запрос":
                             other_important = [k for k in self.rules["important"] if k != "второй запрос"]
                             has_other = any(k in full_text for k in other_important)
                             if not has_other:
                                 continue
                     return cat
-        return "unknown"
+        return "inbox"
