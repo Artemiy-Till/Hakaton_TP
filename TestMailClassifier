@@ -24,6 +24,9 @@ class TestMailClassifier(unittest.TestCase):
             ("Замечания к техническому заданию", "client@company.com", "Пункт 6.7 требует уточнения", "docs"),
             ("Банковский перевод", "finance@company.com", "Прилагаю чек за выполненную работу", "finance"),
             ("Контракт и счета", "sales@company.com", "Выставьте счёт на оплату", "finance"),
+            ("Проблема с личным кабинетом", "client@example.com", "Не могу войти, кнопка подтвердить не работает",
+             "clients"),
+            ("Заявка от внешнего пользователя", "sales@company.com", "Клиент просит подключиться к системе", "clients")
         ]
         for subject, sender, body, expected in test_cases:
             with self.subTest(subject=subject, sender=sender, body=body):
