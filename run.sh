@@ -4,13 +4,18 @@ echo "Запуск проекта"
 
 cd "$(dirname "$0")"
 
+if [ ! -f "main.py" ]; then
+    echo "Ошибка: файл main.py не найден"
+    exit 1
+fi
+
 if [ ! -d "inbox" ]; then
     echo "Ошибка: папка inbox не найдена"
     exit 1
 fi
 
-if [ ! -f "src/main.py" ]; then
-    echo "Ошибка: файл src/main.py не найден"
+if [ ! -d "tests" ]; then
+    echo "Ошибка: папка tests не найдена"
     exit 1
 fi
 
@@ -18,11 +23,26 @@ if [ ! -d "logs" ]; then
     mkdir logs
 fi
 
+echo "Файл main.py найден"
 echo "Папка inbox найдена"
-echo "Файл src/main.py найден"
-echo "Запускаю программу"
+echo "Папка tests найдена"
 
-python src/main.py > logs/run_output.log 2>&1
+echo "Запускаю тесты"
+
+python3 -m pytest tests > logs/tests_output.log 2>&1
+
+if [ $? -eq 0 ]; then
+    echo "Тесты прошли успешно"
+    echo "Результат тестов сохранён в logs/tests_output.log"
+else
+    echo "Тесты не прошли"
+    echo "Подробности ошибки сохранены в logs/tests_output.log"
+    exit 1
+fi
+
+echo "Запускаю основную программу"
+
+python3 main.py > logs/run_output.log 2>&1
 
 if [ $? -eq 0 ]; then
     echo "Программа завершилась успешно"
