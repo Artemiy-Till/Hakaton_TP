@@ -14,8 +14,8 @@ if [ ! -d "inbox" ]; then
     exit 1
 fi
 
-if [ ! -d "tests" ]; then
-    echo "Ошибка: папка tests не найдена"
+if [ ! -f "tests" ]; then
+    echo "Ошибка: файл tests.py не найден"
     exit 1
 fi
 
@@ -25,11 +25,11 @@ fi
 
 echo "Файл main.py найден"
 echo "Папка inbox найдена"
-echo "Папка tests найдена"
+echo "Файл tests найден"
 
 echo "Запускаю тесты"
 
-python3 -m pytest tests > logs/tests_output.log 2>&1
+python3 -m pytest tests.py > logs/tests_output.log 2>&1
 
 if [ $? -eq 0 ]; then
     echo "Тесты прошли успешно"
