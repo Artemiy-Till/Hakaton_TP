@@ -1,6 +1,6 @@
 import os
 from email_message import EmailMessage
-class Reader:
+class MailReader:
     def read(self, message):
         if os.path.isfile(message):
             if self.imageMessage(message):
