@@ -23,16 +23,9 @@ class MailClassifier:
                 "нужны права", "доступ требуется",
                 "vpn", "confluence", "gitlab", "1с", "облачное хранилище",
                 "корпоративная почта", "access", "permissions",
-                "личный кабинет", "кабинет", "войти в личный кабинет",
                 "доступ к личному кабинету", "восстановить пароль",
                 "доступы", "рабочее место", "подготовить рабочее место",
-                "уровни доступа",
-                "зарегистрироваться", "регистрация", "кнопка подтвердить"
-            ],
-            "meetings": [
-                "созвон", "статус задач", "встретиться", "перенос созвона",
-                "квартальный отчёт", "обсудить", "встреча", "совещание",
-                "нужен созвон", "предлагаю встретиться", "подтвердите участие"
+                "уровни доступа"
             ],
             "hardware": [
                 "гарнитура", "мышь", "ноутбук", "экран", "сломался",
@@ -43,6 +36,16 @@ class MailClassifier:
                 "диск", "disk usage", "uptime", "мониторинг", "плановый отчёт",
                 "мониторинга за сутки", "cpu", "memory", "нагрузка",
                 "healthcheck", "автоматическое уведомление", "api gateway"
+            ],
+            "clients": [
+                "клиент", "внешний пользователь",
+                "личный кабинет", "зарегистрироваться", "кнопка подтвердить",
+                "подключиться"
+            ],
+            "meetings": [
+                "созвон", "статус задач", "встретиться", "перенос созвона",
+                "квартальный отчёт", "обсудить", "встреча", "совещание",
+                "нужен созвон", "предлагаю встретиться", "подтвердите участие"
             ],
             "docs": [
                 "инструкция", "инструкции", "правки", "техническое задание",
@@ -77,12 +80,13 @@ class MailClassifier:
         full_text = (subject.lower() + " " + sender.lower() + " " + body.lower())
 
         concrete_words = [
-            "сервер", "систем", "доступ", "vpn", "confluence", "gitlab", "1с", "облач",
+            "сервер", "систем", "доступ", "доступы", "рабочее место",
+            "vpn", "confluence", "gitlab", "1с", "облач",
             "принтер", "сканер", "ноутбук", "мышь", "клавиатура", "монитор", "гарнитура",
             "антивирус", "браузер", "программ", "ошибка 500", "не открывается", "зависает",
             "вылетает", "не запускается", "код ошибки", "срочн", "авари", "критическ",
             "инцидент", "работа остановлена", "пароль истекает", "заблокирован",
-            "диск", "uptime", "мониторинг", "плановый отчёт", "healthcheck", "api gateway"
+            "диск", "мониторинг", "плановый отчёт", "healthcheck", "api gateway"
         ]
 
         for cat, keywords in self.rules.items():
@@ -90,28 +94,27 @@ class MailClassifier:
                 continue
             for kw in keywords:
                 if kw in full_text:
-                    if cat == "important":
-                        if ("дайджест" in full_text or "выпуск" in full_text or
-                            "плановые технические работы" in full_text):
+                    if cat != "important":
+                        return cat
+
+                    if kw == "второй запрос":
+                        if any(word in full_text for word in concrete_words):
+                            return cat
+                        continue
+
+                    exceptions = (
+                        ("дайджест", "выпуск", "плановые технические работы"),
+                        ("автоматическое уведомление", "система мониторинга", "healthcheck"),
+                        ("плановый отчёт", "мониторинга за сутки"),
+                    )
+                    if any(phrase in full_text for group in exceptions for phrase in group):
+                        continue
+
+                    if kw in ("не работает", "не отвечает"):
+                        if not any(word in full_text for word in concrete_words if word != kw):
                             continue
-                        if ("автоматическое уведомление" in full_text or
-                            "система мониторинга" in full_text or
-                            "healthcheck" in full_text):
-                            continue
-                        if "плановый отчёт" in full_text or "мониторинга за сутки" in full_text:
-                            continue
-                        if kw in ["не работает", "не отвечает"]:
-                            has_concrete = any(word in full_text for word in concrete_words if word != kw)
-                            if not has_concrete:
-                                continue
-                        if "регистрация" in full_text or "зарегистрироваться" in full_text:
-                            continue
-                        if "отпуск" in full_text or "больничный лист" in full_text:
-                            continue
-                        if kw == "второй запрос":
-                            other_important = [k for k in self.rules["important"] if k != "второй запрос"]
-                            has_other = any(k in full_text for k in other_important)
-                            if not has_other:
-                                continue
+
+                    if "отпуск" in full_text or "больничный лист" in full_text:
+                        continue
                     return cat
         return "inbox"
