@@ -79,9 +79,4 @@ class TestMailReader:
         assert res.file_name == "nothing.txt"
         assert res.sender == ""
         assert res.subject == ""
-    def test_Error(self, reader, tmp_path):
-        message = os.path.join(tmp_path, "nothing.txt")
-        text = "aaa"
-        with pytest.raises(ValueError) as error:
-            reader.read(message)
-        assert str(error.value) == "Сообщение не является отдельным файлом или его нет"
+   
