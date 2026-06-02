@@ -14,7 +14,7 @@ class MailReader:
             except UnicodeDecodeError:
                 raise ValueError("Файл ошибочный")
         else:
-            raise ValueError("Сообщение не является отдельным файлом")
+            raise ValueError("Сообщение не является отдельным файлом или его нет")
         subject = self.findSubject(messageText)
         sender = self.findSender(messageText)
         return EmailMessage(
